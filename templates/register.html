@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
+
+{% block title %} Register {% endblock %}
+
 {% block content %}
-<form id="add-user-form" method="POST">
+<form id="register-user-form" method="POST">
   {{ form.hidden_tag() }} <!--add type=hidden form fields -->
 
   {% for field in form
