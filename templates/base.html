@@ -12,14 +12,5 @@
   {% block content %}
 
   {% endblock %}
-  {% if 'username' in session %}
-    <li><a href="/logout">Logout</a></li>
-    <li><a href="/secret">Secret</a></li>
-
-    <form action="/logout" method="POST">
-      {{form.hidden_tag()}}
-      <button type="submit" class="btn btn-primary">Logout</button>
-    </form>
-  {% endif %}
 </body>
 </html>
