@@ -1,13 +1,15 @@
-from flask import Flask, render_template, redirect, session
+from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User
 from forms import RegisterForm, LoginForm
 
 app = Flask(__name__)
 
-
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///hashing_login"
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+  "postgresql://otherjoel:hello@13.57.9.123/otherjoel")
+# app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///hashing_login"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = "abc123"
 
@@ -60,12 +62,12 @@ def login():
         # authenticate will return a user or False
         user = User.authenticate(name, pwd)
 
-    if user:
-        session["user_id"] = user.id  # keep logged in
-        return redirect("/secret")
+        if user:
+            session["username"] = user.username  # keep logged in
+            return redirect("/secret")
 
-    else:
-        form.username.errors = ["Bad name/password"]
+        else:
+            form.username.errors = ["Bad name/password"]
 
     return render_template("login.html", form=form)
 
@@ -73,5 +75,9 @@ def login():
 def successful_login():
     """Return the text you made it"""
 
-    print("You made it")
-    return redirect("/")
+    if "username" not in session:
+        flash("You must be logged in!")
+        return redirect("/login")
+    else:
+        html = "<html><body><h1>You made it</h1></body></html> "
+        return html
