@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User
-from forms import RegisterForm, LoginForm
+from forms import CSRFProtectForm, RegisterForm, LoginForm
 
 app = Flask(__name__)
 
@@ -73,7 +73,7 @@ def login():
 
 @app.get("/secret")
 def successful_login():
-    """Return the text you made it"""
+    """Return HTML you made it"""
 
     if "username" not in session:
         flash("You must be logged in!")
@@ -81,3 +81,14 @@ def successful_login():
     else:
         html = "<html><body><h1>You made it</h1></body></html> "
         return html
+
+@app.post("/logout")
+def logout():
+    """Log out user and redirect to root"""
+
+    form = CSRFProtectForm()
+
+    if form.validate_on_submit():
+        session.pop("username", None)
+
+    return redirect("/")
