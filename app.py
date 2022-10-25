@@ -64,23 +64,30 @@ def login():
 
         if user:
             session["username"] = user.username  # keep logged in
-            return redirect("/secret")
+            return redirect(f"/users/{user.username}")
 
         else:
             form.username.errors = ["Bad name/password"]
 
     return render_template("login.html", form=form)
 
-@app.get("/secret")
-def successful_login():
-    """Return HTML you made it"""
+@app.get("/users/<username>")
+def successful_login(username):
+    """
+    Display a template the shows information about that user.
+
+    Only logged-in users can see this page.
+    """
+
+    user = User.query.get_or_404(username)
+
+    form = CSRFProtectForm()
 
     if "username" not in session:
         flash("You must be logged in!")
         return redirect("/login")
     else:
-        html = "<html><body><h1>You made it</h1></body></html> "
-        return html
+        return render_template("user.html", user=user, form=form)
 
 @app.post("/logout")
 def logout():
