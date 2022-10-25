@@ -4,9 +4,6 @@
 
 
 {% block content %}
-{% for msg in get_flashed_messages() %}
-<p>{{ msg }}</p>
-{% endfor %}
 <form id="login-user-form" method="POST">
   {{ form.hidden_tag() }} <!--add type=hidden form fields -->
 
