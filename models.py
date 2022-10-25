@@ -38,6 +38,13 @@ class User(db.Model):
 
     last_name = db.Column(db.String(30),
                          nullable=False)
+
+    @property
+    def full_name(self):
+        """Return full name of user."""
+
+        return f"{self.first_name} {self.last_name}"
+
     # start_register
     @classmethod
     def register(cls, username, pwd, email, first_name, last_name):
@@ -70,4 +77,3 @@ class User(db.Model):
         else:
             return False
     # end_authenticate
-
