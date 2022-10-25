@@ -1,7 +1,8 @@
-from flask import Flask, render_template, redirect, session, flash
+from flask import Flask, render_template, redirect, session
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User
 from forms import CSRFProtectForm, RegisterForm, LoginForm
+from werkzeug.exceptions import Unauthorized
 
 app = Flask(__name__)
 
@@ -28,6 +29,9 @@ def redirect_to_register():
 def register():
     """Register user: produce form & handle form submission."""
 
+    if "username" in session:
+        return redirect(f"/users/{session['username']}")
+
     form = RegisterForm()
 
     if form.validate_on_submit():
@@ -44,7 +48,7 @@ def register():
         session["username"] = user.username
 
         # on successful registration, redirect to secret page
-        return redirect("/secret")
+        return redirect(f"/users/{user.username}")
 
     else:
         return render_template("register.html", form=form)
@@ -52,6 +56,9 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Produce login form or handle login."""
+
+    if "username" in session:
+        return redirect(f"/users/{session['username']}")
 
     form = LoginForm()
 
@@ -69,25 +76,22 @@ def login():
         else:
             form.username.errors = ["Bad name/password"]
 
-    return render_template("login.html", form=form)
 
 @app.get("/users/<username>")
-def successful_login(username):
+def show_user_page(username):
     """
     Display a template the shows information about that user.
 
     Only logged-in users can see this page.
     """
 
-    user = User.query.get_or_404(username)
+    if "username" not in session or username != session["username"]:
+        raise Unauthorized()
 
+    user = User.query.get_or_404(username)
     form = CSRFProtectForm()
 
-    if "username" not in session:
-        flash("You must be logged in!")
-        return redirect("/login")
-    else:
-        return render_template("user.html", user=user, form=form)
+    return render_template("user.html", user=user, form=form)
 
 @app.post("/logout")
 def logout():
@@ -97,5 +101,7 @@ def logout():
 
     if form.validate_on_submit():
         session.pop("username", None)
+    else:
+        raise Unauthorized()
 
     return redirect("/")
