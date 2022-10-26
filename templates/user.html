@@ -7,6 +7,22 @@
 <p>Name: {{user.full_name }}</p>
 <p>Username: {{user.username}}</p>
 <p>Email: {{user.email}}</p>
+<form action="/users/{{user.username}}/notes/add">
+  <button type="submit">Add Note</button>
+</form>
+<h3>Notes</h3>
+{% for note in notes%}
+  <p>{{note.title}}</p>
+  <p>{{note.content}}</p>
+  <form action="/notes/{{note.id}}/update">
+    <button>Update Note</button>
+  </form>
+  <form action="/notes/{{note.id}}/delete" method="POST">
+    {{form.hidden_tag()}}
+    <button type="submit">Delete Note</button>
+  </form>
+  <hr>
+{% endfor %}
 {% if 'username' in session %}
   <form action="/logout" method="POST">
     {{form.hidden_tag()}}

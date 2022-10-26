@@ -15,29 +15,26 @@ def connect_db(app):
     db.init_app(app)
 
 
-
 class User(db.Model):
     """Site user."""
 
     __tablename__ = "users"
 
     username = db.Column(db.String(20),
-                         nullable=False,
-                         primary_key=True,
-                         unique=True)
+                         primary_key=True)
 
     password = db.Column(db.String(100),
                          nullable=False)
 
     email = db.Column(db.String(50),
-                         nullable=False,
-                         unique=True)
+                      nullable=False,
+                      unique=True)
 
     first_name = db.Column(db.String(30),
-                         nullable=False)
+                           nullable=False)
 
     last_name = db.Column(db.String(30),
-                         nullable=False)
+                          nullable=False)
 
     @property
     def full_name(self):
@@ -54,10 +51,10 @@ class User(db.Model):
 
         # return instance of user w/username and hashed pwd
         return cls(username=username,
-                    password=hashed,
-                    email=email,
-                    first_name=first_name,
-                    last_name=last_name)
+                   password=hashed,
+                   email=email,
+                   first_name=first_name,
+                   last_name=last_name)
 
     # end_register
 
@@ -77,3 +74,29 @@ class User(db.Model):
         else:
             return False
     # end_authenticate
+
+
+class Note(db.Model):
+    "User Notes."
+
+    __tablename__ = "notes"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+    # space accordingly
+    title = db.Column(db.String(100),
+                      nullable=False)
+
+    content = db.Column(db.Text,
+                        nullable=False
+                        )
+    # Be consistent naming with foreign key
+    username = db.Column(db.String(20),
+        db.ForeignKey("users.username"),
+        nullable=False
+        )
+
+    user = db.relationship("User",backref="notes")
